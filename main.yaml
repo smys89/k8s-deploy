@@ -1,0 +1,23 @@
+---
+- name: Ansible k8s Test
+  hosts: localhost
+  tasks:
+    
+    - name: Get a list of all pods from any namespace
+      kubernetes.core.k8s_info:
+        kind: Pod
+        kubeconfig: /etc/config
+      register: pod_list
+    
+    - name: Display k8s Cluster details
+      debug:
+        msg: "{{ pod_list }}"
+    
+    - name: Read a system wide config
+      community.general.git_config_info:
+        name: core.editor
+      register: result
+    
+    - name: Show value of core.editor
+      ansible.builtin.debug:
+        msg: "{{ result.config_value | default('(not set)', true) }}"

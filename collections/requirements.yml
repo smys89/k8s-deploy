@@ -1,0 +1,3 @@
+collections:
+- name: kubernetes-core-5.0.0.tar.gz
+  version: 5.0.0
