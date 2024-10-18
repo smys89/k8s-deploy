@@ -10,7 +10,7 @@
         version: "{{ branch }}"
         update: yes
 
-    - name: Replace nginx:latest image with the new image URL
+    - name: Replace old image with the new image
       ansible.builtin.replace:
         path: "{{ repo_path }}{{ file_to_update }}"
         regexp: "- image: {{ old_image }}"
