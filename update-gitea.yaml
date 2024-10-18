@@ -1,0 +1,32 @@
+---
+- name: Update Git repository
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Clone the repository if it does not exist
+      ansible.builtin.git:
+        repo: "http://{{ git_username }}:{{ git_token }}@{{ git_repo_url }}"
+        dest: "{{ repo_path }}"
+        version: "{{ branch }}"
+        update: yes
+
+    - name: Replace nginx:latest image with the new image URL
+      ansible.builtin.replace:
+        path: "{{ repo_path }}{{ file_to_update }}"
+        regexp: "- image: {{ old_image }}"
+        replace: "- image: {{ new_image }}"
+
+    - name: Ensure changes are staged (add all changes)
+      ansible.builtin.command:
+        cmd: git add -A
+        chdir: "{{ repo_path }}"
+    
+    - name: Commit changes with a message
+      ansible.builtin.command:
+        cmd: git commit -m "{{ commit_message }}"
+        chdir: "{{ repo_path }}"
+
+    - name: Push changes to the remote repository
+      ansible.builtin.command:
+        cmd: git push origin "{{ branch }}"
+        chdir: "{{ repo_path }}"
