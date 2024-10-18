@@ -1,0 +1,25 @@
+---
+- name: Load Docker Images
+  hosts: all
+  tasks:
+
+    - name: "Load {{ image_name }}:{{ docker_tag }} image from the given tar file"
+      community.docker.docker_image_load:
+        path: "{{ load_path }}"
+
+    - name: "Tag {{ image_name }} {{ docker_tag }} image"
+      community.docker.docker_image_tag:
+        name: "{{ image_name }}:{{ docker_tag }}"
+        repository:
+          - "{{ docker_registry }}/{{ image_name }}:{{ docker_tag }}"
+
+    - name: "Push {{ image_name }} {{ docker_tag }} image"
+      community.docker.docker_image_push:
+        name: "{{ docker_registry }}/{{ image_name }}"
+        tag: "{{ docker_tag }}"
+
+    - name: "Remove {{ image_name }}:{{ docker_tag }} image"
+      community.docker.docker_image:
+        state: absent
+        name: "{{ docker_registry }}/{{ image_name }}"
+        tag: "{{ docker_tag }}"
