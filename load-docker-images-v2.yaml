@@ -1,6 +1,7 @@
 ---
 - name: Load Docker Image(s)
   hosts: all
+  gather_facts: false
   tasks:
 
     - name: "Load Docker image(s) from the given tar file"
