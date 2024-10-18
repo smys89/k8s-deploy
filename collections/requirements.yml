@@ -1,3 +1,10 @@
 collections:
-- name: kubernetes-core-5.0.0.tar.gz
-  version: 5.0.0
+  - name: http://gitea-http.gitea.svc.cluster.local:3000/smys/kubernetes.core.git
+    type: git
+    version: 5.0.0
+  - name: http://gitea-http.gitea.svc.cluster.local:3000/smys/community.docker.git
+    type: git
+    version: 3.13.1
+  - name: http://gitea-http.gitea.svc.cluster.local:3000/smys/community.library_inventory_filtering.git
+    type: git
+    version: 1.0.1
