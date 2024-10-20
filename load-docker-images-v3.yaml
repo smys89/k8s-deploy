@@ -1,0 +1,65 @@
+---
+- name: Load Docker Image(s)
+  hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: "Load Docker image(s) from the given tar file"
+      community.docker.docker_image_load:
+        path: "{{ nfs_path }}{{ item }}"
+      loop: "{{ archive_names.split(',') }}"
+      vars:
+        archive_names: "{{ archive_name }}"
+
+    - name: Log in to Docker Registry
+      community.docker.docker_login:
+        registry: "{{ docker_registry }}"
+        username: "{{ docker_username }}"
+        password: "{{ docker_password }}"
+        state: present
+
+    - name: "Tag Docker image(s)"
+      community.docker.docker_image_tag:
+        name: "{{ item.0 }}:{{ item.1 }}"
+        repository: "{{ docker_registry }}/{{ item.0 }}:{{ item.1 }}"
+      with_together:
+        - "{{ image_names_list }}"
+        - "{{ docker_tags_list }}"
+      vars:
+        image_names_list: "{{ image_name.split(',') }}"
+        docker_tags_list: "{{ docker_tag.split(',') }}"
+
+    - name: "Push Docker image(s)"
+      community.docker.docker_image_push:
+        name: "{{ docker_registry }}/{{ item.0 }}"
+        tag: "{{ item.1 }}"
+      with_together:
+        - "{{ image_names_list }}"
+        - "{{ docker_tags_list }}"
+      vars:
+        image_names_list: "{{ image_name.split(',') }}"
+        docker_tags_list: "{{ docker_tag.split(',') }}"
+
+    - name: "Untag local Docker image(s)"
+      community.docker.docker_image:
+        state: absent
+        name: "{{ docker_registry }}/{{ item.0 }}"
+        tag: "{{ item.1 }}"
+      with_together:
+        - "{{ image_names_list }}"
+        - "{{ docker_tags_list }}"
+      vars:
+        image_names_list: "{{ image_name.split(',') }}"
+        docker_tags_list: "{{ docker_tag.split(',') }}"
+
+    - name: "Remove local Docker image(s)"
+      community.docker.docker_image:
+        state: absent
+        name: "{{ item.0 }}"
+        tag: "{{ item.1 }}"
+      with_together:
+        - "{{ image_names_list }}"
+        - "{{ docker_tags_list }}"
+      vars:
+        image_names_list: "{{ image_name.split(',') }}"
+        docker_tags_list: "{{ docker_tag.split(',') }}"
